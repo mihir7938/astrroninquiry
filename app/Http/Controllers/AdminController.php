@@ -691,4 +691,21 @@ class AdminController extends Controller {
             return redirect()->route('admin.inquiries');
         }
     }
+    public function deleteInquiry(Request $request, $id)
+    {
+        try{
+            $inquiry = $this->inquiryService->getInquiryById($id);
+            if(!$inquiry){
+                throw new BadRequestException('Invalid Request id.');
+            }
+            $this->inquiryService->delete($inquiry);
+            $request->session()->put('message', 'Inquiry has been deleted successfully.');
+            $request->session()->put('alert-type', 'alert-success');
+            return redirect()->route('admin.inquiries');
+        }catch(\Exception $e){
+            $request->session()->put('message', $e->getMessage());
+            $request->session()->put('alert-type', 'alert-warning');
+            return redirect()->route('admin.inquiries');
+        }
+    }
 }
