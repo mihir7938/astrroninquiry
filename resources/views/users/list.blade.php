@@ -17,7 +17,7 @@
                         <th>Status</th>
                         <th>Date</th>
                         <th>Business</th>
-                        <th>Product</th>
+                        <th>Products</th>
                         <th>City</th>
                         <th>Reff</th>
                         <th>Remarks</th>
@@ -46,7 +46,7 @@
                         <th>Status</th>
                         <th>Date</th>
                         <th>Business</th>
-                        <th>Product</th>
+                        <th>Products</th>
                         <th>City</th>
                         <th>Reff</th>
                         <th>Remarks</th>
@@ -80,7 +80,15 @@
                             <td>{{$inquiry->status->name}}</td>
                             <td>{{Carbon\Carbon::parse($inquiry->inquiry_date)->format('d-m-Y')}}</td>
                             <td>{{$inquiry->business->name}}</td>
-                            <td>{{$inquiry->product->name}}</td>
+                            <td>
+                                {{
+                                    $inquiry->products->map(function($item){
+                                        return $item->product->name . 
+                                               '(Price:' . $item->price . 
+                                               ', Qty:' . $item->quantity . ')';
+                                    })->implode(', ')
+                                }}
+                            </td>
                             <td>{{$inquiry->city}}</td>
                             <td>{{$inquiry->reff}}</td>
                             <td>{{$inquiry->remarks}}</td>

@@ -67,7 +67,7 @@
                                                 <div class="col-md-5">
                                                     <div class="form-group">
                                                         <label class="text-primary field-label">Product</label>
-                                                        <select name="product[0]" class="form-control product border border-primary">
+                                                        <select name="product[]" class="form-control product border border-primary">
                                                             <option value="">Select Product</option>
                                                             @foreach($products as $product)
                                                                 <option value="{{$product->id}}">{{$product->name}}</option>
@@ -78,13 +78,13 @@
                                                 <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label class="text-primary field-label">Price</label>
-                                                        <input type="text" class="form-control price border border-primary" name="price[0]" placeholder="Price">
+                                                        <input type="text" class="form-control price border border-primary" name="price[]" placeholder="Price">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label class="text-primary field-label">Quantity</label>
-                                                        <input type="text" class="form-control quantity border border-primary" name="quantity[0]" placeholder="Quantity">
+                                                        <input type="text" class="form-control quantity border border-primary" name="quantity[]" placeholder="Quantity">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-1">

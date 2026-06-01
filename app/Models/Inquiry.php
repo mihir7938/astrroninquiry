@@ -24,7 +24,6 @@ class Inquiry extends Model
         'email',
         'city',
         'business_id',
-        'product_id',
         'status_id',
         'reff',
         'remarks',
@@ -60,9 +59,9 @@ class Inquiry extends Model
     {
         return $this->belongsTo(Business::class, 'business_id', 'id');
     }
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'id');
+        return $this->hasMany(InquiryProduct::class, 'inquiry_id', 'id');
     }
     public function photos()
     {

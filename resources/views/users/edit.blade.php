@@ -63,14 +63,83 @@
                                             <label for="city">City (Eg: GJ-Surat)*</label>
                                             <input type="text" class="form-control" id="city" name="city" placeholder="City (Eg: GJ-Surat)*" value="{{$inquiry->city}}">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="product">Product*</label>
-                                            <select id="product" name="product" class="form-control select2">
-					                            <option value="">Select Product*</option>
-					                            @foreach($products as $product)
-					                                <option value="{{$product->id}}" @if($inquiry->product_id == $product->id) selected @endif>{{$product->name}}</option>
-					                            @endforeach
-					                        </select>
+                                        <input type="hidden" id="total_products" value="{{$inquiry->products->count()}}">
+                                        <div id="product-wrapper" class="border border-dark bg-light px-3 py-2 mt-2 mb-3">
+                                            @if($inquiry->products->count() > 0)
+                                                @foreach($inquiry->products as $key => $row)
+                                                    <div class="row product-row">
+                                                        <input type="hidden" name="row_id[]" value="{{$row->id}}">
+                                                        <div class="col-md-5">
+                                                            <div class="form-group">
+                                                                @if($key == 0)<label class="text-primary field-label">Product</label>@endif
+                                                                <select name="product[{{$key}}]" class="form-control product border border-primary">
+                                                                    <option value="">Select Product</option>
+                                                                    @foreach($products as $product)
+                                                                        <option value="{{$product->id}}" @if($row->product_id == $product->id) selected @endif>{{$product->name}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                @if($key == 0)<label class="text-primary field-label">Price</label>@endif
+                                                                <input type="text" class="form-control price border border-primary" name="price[{{$key}}]" placeholder="Price" value="{{$row->price}}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                @if($key == 0)<label class="text-primary field-label">Quantity</label>@endif
+                                                                <input type="text" class="form-control quantity border border-primary" name="quantity[{{$key}}]" placeholder="Quantity" value="{{$row->quantity}}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <div class="form-group">
+                                                                @if($key == 0)<label class="d-block invisible field-label">Buttons</label>@endif
+                                                                <div class="d-flex">
+                                                                    <button type="button" class="btn btn-success add-row mr-1">+</button>
+                                                                    <button type="button" class="btn btn-danger remove-row">-</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <div class="row product-row">
+                                                    <input type="hidden" name="row_id[]" value="">
+                                                    <div class="col-md-5">
+                                                        <div class="form-group">
+                                                            <label class="text-primary field-label">Product</label>
+                                                            <select name="product[]" class="form-control product border border-primary">
+                                                                <option value="">Select Product</option>
+                                                                @foreach($products as $product)
+                                                                    <option value="{{$product->id}}">{{$product->name}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label class="text-primary field-label">Price</label>
+                                                            <input type="text" class="form-control price border border-primary" name="price[]" placeholder="Price">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label class="text-primary field-label">Quantity</label>
+                                                            <input type="text" class="form-control quantity border border-primary" name="quantity[]" placeholder="Quantity">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <div class="form-group">
+                                                            <label class="d-block invisible field-label">Buttons</label>
+                                                            <div class="d-flex">
+                                                                <button type="button" class="btn btn-success add-row mr-1">+</button>
+                                                                <button type="button" class="btn btn-danger remove-row">-</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                         <div class="form-group">
                                             <label for="status">Status*</label>
@@ -265,6 +334,28 @@
 @endsection
 @section('footer')
 <script>
+    function applyRowValidation(row) {
+        row.find('.product').rules('add', {
+            required: true,
+            messages: {
+                required: "Please select product."
+            }
+        });
+        row.find('.price').rules('add', {
+            required: true,
+            digits: true,
+            messages: {
+                required: "Please enter price."
+            }
+        });
+        row.find('.quantity').rules('add', {
+            required: true,
+            digits: true,
+            messages: {
+                required: "Please enter quantity."
+            }
+        });
+    }
     $(function () {
         $('.select2').select2();
         $('.followup_date').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' });
@@ -292,9 +383,6 @@
                     required: true
                 },
                 city: {
-                    required: true
-                },
-                product: {
                     required: true
                 },
                 status: {
@@ -332,9 +420,6 @@
                 city: {
                     required: "Please enter city."
                 },
-                product: {
-                    required: "Please select product."
-                },
                 status: {
                     required: "Please select status."
                 },
@@ -355,7 +440,9 @@
                 }
             },
             errorPlacement: function(error, element) {
-                if (element.attr("name") == "image[]" ) {
+                if (element.hasClass('select2-hidden-accessible')) {
+                    error.insertAfter(element.next('.select2-container'));
+                } else if (element.attr("name") == "image[]" ) {
                     $(".image_div").after(error);
                 } else if (element.attr("name") == "requirements" ) {
                     $(".requirements_div").after(error);
@@ -364,6 +451,30 @@
                 } else {
                     error.insertAfter(element);
                 }
+            }
+        });
+        let rowIndex = $('#total_products').val();
+        $('.product-row').each(function () {
+            applyRowValidation($(this));
+        });
+        $(document).on('click', '.add-row', function () {
+            let clone = $('.product-row:first').clone();
+            clone.find('input').val('');
+            clone.find('select').prop('selectedIndex', 0);
+            clone.find('.field-label').remove();
+            clone.find('label.error').remove();
+            clone.find('.product').attr('name', 'product['+rowIndex+']');
+            clone.find('.price').attr('name', 'price['+rowIndex+']');
+            clone.find('.quantity').attr('name', 'quantity['+rowIndex+']');
+            $('#product-wrapper').append(clone);
+            applyRowValidation(clone);
+            rowIndex++;
+        });
+        $(document).on('click', '.remove-row', function () {
+            if ($('.product-row').length > 1) {
+                $(this).closest('.product-row').remove();
+            } else {
+                alert('At least one row required.');
             }
         });
     });

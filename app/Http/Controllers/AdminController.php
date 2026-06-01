@@ -12,14 +12,16 @@ use App\Services\AssignService;
 use App\Services\UserService;
 use App\Services\InquiryService;
 use App\Services\InquiryPhotosService;
+use App\Services\InquiryProductService;
 use App\Models\Inquiry;
+use App\Models\InquiryProduct;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller {
 
-	private $imageService, $cityService, $businessService, $productService, $statusService, $assignService, $userService, $inquiryService, $inquiryPhotosService;
+	private $imageService, $cityService, $businessService, $productService, $statusService, $assignService, $userService, $inquiryService, $inquiryPhotosService, $inquiryProductService;
 
     public function __construct(
         UploadImageService $imageService,
@@ -30,7 +32,8 @@ class AdminController extends Controller {
         AssignService $assignService,
         UserService $userService,
         InquiryService $inquiryService,
-        InquiryPhotosService $inquiryPhotosService
+        InquiryPhotosService $inquiryPhotosService,
+        InquiryProductService $inquiryProductService
     )
     {
         $this->imageService = $imageService;
@@ -42,6 +45,7 @@ class AdminController extends Controller {
         $this->userService = $userService;
         $this->inquiryService = $inquiryService;
         $this->inquiryPhotosService = $inquiryPhotosService;
+        $this->inquiryProductService = $inquiryProductService;
     }
 
     public function index(Request $request)
@@ -531,7 +535,6 @@ class AdminController extends Controller {
         $data['email'] = $request->email;
         $data['city'] = $request->city;
         $data['business_id'] = $request->business;
-        $data['product_id'] = $request->product;
         $data['status_id'] = $request->status;
         $data['reff'] = $request->reff;
         $data['remarks'] = $request->remarks;
@@ -546,6 +549,20 @@ class AdminController extends Controller {
         }
         $inquiry_data = $this->inquiryService->create($data);
         $inquiry_id = $inquiry_data->id;
+        if ($request->product) {
+            foreach ($request->product as $key => $productId) {
+                if (!$productId) {
+                    continue;
+                }
+                $saveData = [
+                    'inquiry_id' => $inquiry_id,
+                    'product_id' => $productId,
+                    'price' => $request->price[$key] ?? null,
+                    'quantity' => $request->quantity[$key] ?? null,
+                ];
+                $newRow = InquiryProduct::create($saveData);
+            }
+        }
         if($request->has('image')){
             $data['inquiry_id'] = $inquiry_id;
             foreach($request->image as $img) {
@@ -590,7 +607,6 @@ class AdminController extends Controller {
             $data['email'] = $request->email;
             $data['city'] = $request->city;
             $data['business_id'] = $request->business;
-            $data['product_id'] = $request->product;
             $data['status_id'] = $request->status;
             $data['reff'] = $request->reff;
             $data['remarks'] = $request->remarks;
@@ -632,6 +648,32 @@ class AdminController extends Controller {
                 $data['quotation'] = '/inquiry/quotation/'.$filename_quo;
 			}
             $this->inquiryService->update($inquiry, $data);
+            $productExistingIds = [];
+            if ($request->product) {
+                foreach ($request->product as $key => $productId) {
+                    if (!$productId) {
+                        continue;
+                    }
+                    $saveData = [
+                        'inquiry_id' => $inquiry->id,
+                        'product_id' => $productId,
+                        'price' => $request->price[$key] ?? null,
+                        'quantity' => $request->quantity[$key] ?? null,
+                    ];
+                    $rowId = $request->row_id[$key] ?? null;
+                    if ($rowId) {
+                        $productRow = InquiryProduct::find($rowId);
+                        if ($productRow) {
+                            $productRow->update($saveData);
+                            $productExistingIds[] = $productRow->id;
+                        }
+                    } else {
+                        $newRow = InquiryProduct::create($saveData);
+                        $productExistingIds[] = $newRow->id;
+                    }
+                }
+            }
+            InquiryProduct::where('inquiry_id', $inquiry->id)->whereNotIn('id', $productExistingIds)->delete();
             if($request->has('image')){
                 $data['inquiry_id'] = $request->id;
                 foreach($request->image as $img) {
