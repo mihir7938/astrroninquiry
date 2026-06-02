@@ -19,65 +19,36 @@
                     <div class="small-box bg-info">
                         <div class="inner">
                             <h3>{{ $total_inquiry }}</h3>
-                            <p>Inquiry</p>
+                            <p>All Inquiries</p>
                         </div>
                         <a href="{{route('admin.inquiries')}}" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-dark">
-                        <div class="inner">
-                            <h3>{{ $total_pending_inquiry }}</h3>
-                            <p>Pending Inquiry</p>
+                @php
+                    $bgClasses = [
+                        'bg-dark',
+                        'bg-primary',
+                        'bg-warning',
+                        'bg-success',
+                        'bg-danger',
+                        'bg-secondary',
+                        'bg-info',
+                        'bg-dark',
+                        'bg-primary',
+                        'bg-success',
+                    ];
+                @endphp
+                @foreach($statuses as $key => $status)
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box {{ $bgClasses[$key % count($bgClasses)] }}">
+                            <div class="inner">
+                                <h3>{{ $status->inquiries_count }}</h3>
+                                <p>{{ $status->name }}</p>
+                            </div>
+                            <a href="{{route('admin.inquiries')}}?status={{$status->id}}" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                        <a href="{{route('admin.inquiries')}}?status=1" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
                     </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-primary">
-                        <div class="inner">
-                            <h3>{{ $total_demo }}</h3>
-                            <p>Demo</p>
-                        </div>
-                        <a href="{{route('admin.inquiries')}}?status=2" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-warning">
-                        <div class="inner">
-                            <h3>{{ $total_followup }}</h3>
-                            <p>Followup</p>
-                        </div>
-                        <a href="{{route('admin.inquiries')}}?status=3" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3>{{ $total_confirmed }}</h3>
-                            <p>Confirmed</p>
-                        </div>
-                        <a href="{{route('admin.inquiries')}}?status=4" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-danger">
-                        <div class="inner">
-                            <h3>{{ $total_cancelled }}</h3>
-                            <p>Cancelled</p>
-                        </div>
-                        <a href="{{route('admin.inquiries')}}?status=5" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-dark">
-                        <div class="inner">
-                            <h3>{{ $total_future_list }}</h3>
-                            <p>Future List</p>
-                        </div>
-                        <a href="{{route('admin.inquiries')}}?status=6" class="small-box-footer py-3">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
+                @endforeach
                 <div class="col-lg-3 col-6">
                     <div class="small-box bg-info">
                         <div class="inner">

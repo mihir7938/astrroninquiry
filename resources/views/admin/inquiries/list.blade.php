@@ -9,13 +9,14 @@
                     <tr>
                         <th></th>
                         <th>Action</th>
+                        <th>Inquiry No</th>
+                        <th>Date</th>
                         <th>Company</th>
                         <th>Contact Name</th>
                         <th>Mobile Number</th>
                         <th>User</th>
                         <th>Assign</th>
                         <th>Status</th>
-                        <th>Date</th>
                         <th>Business</th>
                         <th>Products</th>
                         <th>City</th>
@@ -38,13 +39,14 @@
                     <tr>
                         <th></th>
                         <th>Action</th>
+                        <th>Inquiry No</th>
+                        <th>Date</th>
                         <th>Company</th>
                         <th>Contact Name</th>
                         <th>Mobile Number</th>
                         <th>User</th>
                         <th>Assign</th>
                         <th>Status</th>
-                        <th>Date</th>
                         <th>Business</th>
                         <th>Products</th>
                         <th>City</th>
@@ -75,13 +77,14 @@
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
+                            <td>{{$inquiry->id}}</td>
+                            <td>{{Carbon\Carbon::parse($inquiry->inquiry_date)->format('d-m-Y')}}</td>
                             <td>{{$inquiry->company_name}}</td>
                             <td>{{$inquiry->contact_person}}</td>
                             <td>{{$inquiry->phone}}</td>
                             <td>{{$inquiry->user->contact_person}}</td>
                             <td>{{$inquiry->assign->contact_person}}</td>
                             <td>{{$inquiry->status->name}}</td>
-                            <td>{{Carbon\Carbon::parse($inquiry->inquiry_date)->format('d-m-Y')}}</td>
                             <td>{{$inquiry->business->name}}</td>
                             <td>
                                 {{

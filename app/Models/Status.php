@@ -20,4 +20,9 @@ class Status extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function inquiries()
+    {
+        return $this->hasMany(Inquiry::class, 'status_id', 'id');
+    }
 }

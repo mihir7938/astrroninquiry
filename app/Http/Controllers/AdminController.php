@@ -51,14 +51,9 @@ class AdminController extends Controller {
     public function index(Request $request)
     {
         $total_inquiry = Inquiry::count();
-        $total_pending_inquiry = $this->inquiryService->getTotalInquiriesByStatus(1);
-        $total_demo = $this->inquiryService->getTotalInquiriesByStatus(2);
-        $total_followup = $this->inquiryService->getTotalInquiriesByStatus(3);
-        $total_confirmed = $this->inquiryService->getTotalInquiriesByStatus(4);
-        $total_cancelled = $this->inquiryService->getTotalInquiriesByStatus(5);
-        $total_future_list = $this->inquiryService->getTotalInquiriesByStatus(6);
+        $statuses = $this->statusService->getAllStatusCount();
         $total_users = User::count();
-        return view('admin.index')->with('total_inquiry', $total_inquiry)->with('total_pending_inquiry', $total_pending_inquiry)->with('total_demo', $total_demo)->with('total_followup', $total_followup)->with('total_confirmed', $total_confirmed)->with('total_cancelled', $total_cancelled)->with('total_future_list', $total_future_list)->with('total_users', $total_users);
+        return view('admin.index')->with('total_inquiry', $total_inquiry)->with('statuses', $statuses)->with('total_users', $total_users);
     }
     public function cities(Request $request)
     {
@@ -502,17 +497,7 @@ class AdminController extends Controller {
     {
         $status_id = $request->status_id;
         $inquiries = $this->inquiryService->getAllInquiries();
-        if($status_id == 1) {
-            $inquiries = $this->inquiryService->getInquiriesByStatus($status_id);
-        } elseif($status_id == 2) {
-            $inquiries = $this->inquiryService->getInquiriesByStatus($status_id);
-        } elseif($status_id == 3) {
-            $inquiries = $this->inquiryService->getInquiriesByStatus($status_id);
-        } elseif($status_id == 4) {
-            $inquiries = $this->inquiryService->getInquiriesByStatus($status_id);
-        } elseif($status_id == 5) {
-            $inquiries = $this->inquiryService->getInquiriesByStatus($status_id);
-        } elseif($status_id == 6) {
+        if($status_id) {
             $inquiries = $this->inquiryService->getInquiriesByStatus($status_id);
         }
         return view('admin.inquiries.list')->with('inquiries', $inquiries)->render();

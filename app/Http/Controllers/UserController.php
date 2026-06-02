@@ -53,15 +53,9 @@ class UserController extends Controller
     {
         $user_id = Auth::user()->id;
     	$total_inquiry = $this->inquiryService->getTotalInquiriesByUser($user_id);
-        $total_pending_inquiry = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 1);
-        $total_demo = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 2);
-        $total_followup = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 3);
-        $total_confirmed = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 4);
-        $total_cancelled = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 5);
-        $total_future_list = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 6);
-        $total_hot_lead = $this->inquiryService->getTotalInquiriesByUserByStatus($user_id, 7);
+        $statuses = $this->statusService->getAllStatusByUserAssign($user_id);
         $total_assign_inquiry = $this->inquiryService->getTotalInquiriesByAssign($user_id, $user_id);
-        return view('users.index')->with('total_inquiry', $total_inquiry)->with('total_pending_inquiry', $total_pending_inquiry)->with('total_demo', $total_demo)->with('total_followup', $total_followup)->with('total_confirmed', $total_confirmed)->with('total_cancelled', $total_cancelled)->with('total_future_list', $total_future_list)->with('total_hot_lead', $total_hot_lead)->with('total_assign_inquiry', $total_assign_inquiry);
+        return view('users.index')->with('total_inquiry', $total_inquiry)->with('statuses', $statuses)->with('total_assign_inquiry', $total_assign_inquiry);
     }
     public function addInquiry(Request $request)
     {

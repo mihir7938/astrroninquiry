@@ -34,4 +34,22 @@ class StatusService
     {
         return $status->delete($status);
     }
+
+    public function getAllStatusCount($per_page = -1)
+    {
+        return Status::withCount('inquiries')->orderBy('created_at', 'asc')->get();
+    }
+
+    public function getAllStatusByUserAssign($user_id)
+    {
+        $query = Status::withCount([
+        'inquiries' => function ($q) use ($user_id) {
+            $q->where(function ($query) use ($user_id) {
+                $query->where('user_id', $user_id)
+                      ->orWhere('assign_id', $user_id);
+            });
+        }
+        ])->orderBy('created_at', 'asc');
+        return $query->get();
+    }
 }
