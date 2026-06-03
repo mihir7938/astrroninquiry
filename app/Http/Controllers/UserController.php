@@ -54,8 +54,9 @@ class UserController extends Controller
         $user_id = Auth::user()->id;
     	$total_inquiry = $this->inquiryService->getTotalInquiriesByUser($user_id);
         $statuses = $this->statusService->getAllStatusByUserAssign($user_id);
-        $total_assign_inquiry = $this->inquiryService->getTotalInquiriesByAssign($user_id, $user_id);
-        return view('users.index')->with('total_inquiry', $total_inquiry)->with('statuses', $statuses)->with('total_assign_inquiry', $total_assign_inquiry);
+        $assign_in_inquiry = $this->inquiryService->getTotalInquiriesByAssign($user_id, 'In');
+        $assign_out_inquiry = $this->inquiryService->getTotalInquiriesByAssign($user_id, 'Out');
+        return view('users.index')->with('total_inquiry', $total_inquiry)->with('statuses', $statuses)->with('assign_in_inquiry', $assign_in_inquiry)->with('assign_out_inquiry', $assign_out_inquiry);
     }
     public function addInquiry(Request $request)
     {
@@ -117,24 +118,24 @@ class UserController extends Controller
     }
     public function getInquiries(Request $request)
     {
-        $statuses = $this->statusService->getAllStatus();
         $user_id = Auth::user()->id;
         $status_id = "";
-        $flag = 1;
+        $assign_type = "";
+        $statuses = $this->statusService->getAllStatus();
         if( $request->has('status') ) {
             $status_id = $request->input('status');
-            $inquiries = $this->inquiryService->getInquiriesByUserByStatus($user_id, $status_id);
-        } else {
-            $inquiries = $this->inquiryService->getInquiriesByUser($user_id);
         }
-        return view('users.inquiries')->with('statuses', $statuses)->with('status_id', $status_id)->with('flag', $flag)->with('inquiries', $inquiries);
+        if( $request->has('assign_type') ) {
+            $assign_type = $request->input('assign_type');
+        }
+        $inquiries = $this->inquiryService->getInquiriesByUserAssign($user_id, $status_id, $assign_type);
+        return view('users.inquiries')->with('statuses', $statuses)->with('status_id', $status_id)->with('assign_type', $assign_type)->with('inquiries', $inquiries);
     }
     public function fetchInquiriesByStatus(Request $request)
     {
         $user_id = Auth::user()->id;
-        $flag = 1;
-        $inquiries = $this->inquiryService->getInquiriesByUserByFilter($request, $user_id);
-        return view('users.list')->with('inquiries', $inquiries)->with('flag', $flag)->render();
+        $inquiries = $this->inquiryService->getInquiriesByUserAssignByFilter($request, $user_id);
+        return view('users.list')->with('inquiries', $inquiries)->render();
     }
     public function editInquiry(Request $request, $id)
     {

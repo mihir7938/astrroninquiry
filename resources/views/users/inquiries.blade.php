@@ -34,7 +34,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="status">Status</label>
                                             <select id="status" name="status" class="form-control">
@@ -42,6 +42,16 @@
                                                 @foreach($statuses as $status)
                                                     <option value="{{$status->id}}" @if($status_id == $status->id) selected @endif>{{$status->name}}</option>
                                                 @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="assign_type">Assign Type</label>
+                                            <select id="assign_type" name="assign_type" class="form-control">
+                                                <option value="">Select Assign Type</option>
+                                                <option value="In" @if($assign_type == 'In') selected @endif>In</option>
+                                                <option value="Out" @if($assign_type == 'Out') selected @endif>Out</option>
                                             </select>
                                         </div>
                                     </div>
@@ -77,7 +87,7 @@
                         </div>
                     </form>
                     <div id="inquiry_result">
-                        @include('users.list', ['inquiries' => $inquiries, 'flag' => $flag])
+                        @include('users.list', ['inquiries' => $inquiries])
                     </div>
                 </div>
             </div>
@@ -108,6 +118,7 @@
                 },
                 data: {
                   'status_id' : $("#status").val(),
+                  'assign_type' : $("#assign_type").val(),
                   'followup_start_date' : $("#followup_start_date").val(),
                   'followup_end_date' : $("#followup_end_date").val(),
                 },

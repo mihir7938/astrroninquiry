@@ -71,15 +71,15 @@
                             <li class="nav-item">
                                 <a href="{{route('users.inquiries')}}" class="nav-link {{(Route::currentRouteName() == 'users.inquiries') || (Route::currentRouteName() == 'users.inquiries.edit') ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-question-circle"></i>
-                                    <p>Inquiries</p>
+                                    <p>All Inquiries</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            {{--<li class="nav-item">
                                 <a href="{{route('users.assign.inquiries')}}" class="nav-link {{(Route::currentRouteName() == 'users.assign.inquiries') ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-question-circle"></i>
                                     <p>Assign Inquiries</p>
                                 </a>
-                            </li>
+                            </li>--}}
                             <li class="nav-item">
                                 <a href="{{route('users.team')}}" class="nav-link {{(Route::currentRouteName() == 'users.team') ? 'active' : '' }}">
                                     <i class="nav-icon fas fa-user"></i>

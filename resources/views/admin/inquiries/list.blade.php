@@ -89,10 +89,13 @@
                             <td>
                                 {{
                                     $inquiry->products->map(function($item){
+                                        if (!$item->product) {
+                                            return null;
+                                        }
                                         return $item->product->name . 
                                                '(Price:' . $item->price . 
                                                ', Qty:' . $item->quantity . ')';
-                                    })->implode(', ')
+                                    })->filter()->implode(', ')
                                 }}
                             </td>
                             <td>{{$inquiry->city}}</td>

@@ -50,11 +50,62 @@ class InquiryService
         return Inquiry::where('user_id', $user_id)->where('status_id', $status_id)->orderBy('created_at','desc')->get();
     }
 
+    public function getInquiriesByUserAssign($user_id, $status_id, $assign_type)
+    {
+        $query = Inquiry::where(function ($q) use ($user_id) {
+            $q->where('user_id', $user_id)
+              ->orWhere('assign_id', $user_id);
+        })
+        ->orderBy('created_at', 'desc');
+        if($status_id != ''){
+            $query = $query->where('status_id', $status_id);
+        }
+        if($assign_type != ''){
+            if($assign_type == 'In') {
+                $query = $query->where('assign_id', $user_id);
+            } else if($assign_type == 'Out') {
+                $query = $query->where('user_id', $user_id);
+            }
+        }
+        return $query->get();
+    }
+
     public function getInquiriesByUserByFilter($request, $user_id)
     {
         $filter_query = Inquiry::where('user_id', '=', $user_id)->orderBy('created_at','desc');
         if($request->has('status_id') && $request->status_id != ''){
             $filter_query = $filter_query->where('status_id', $request->status_id);
+        }
+        if($request->followup_start_date && $request->followup_end_date){
+            $startDate = date("Y-m-d", strtotime(str_replace('/', '-', $request->followup_start_date)));
+            $endDate = date("Y-m-d", strtotime(str_replace('/', '-', $request->followup_end_date)));
+            $filter_query = $filter_query->where(function ($query) use ($startDate, $endDate) { 
+                $query->whereBetween('followup_date_1', [$startDate, $endDate])
+                    ->orWhereBetween('followup_date_2', [$startDate, $endDate])
+                    ->orWhereBetween('followup_date_3', [$startDate, $endDate])
+                    ->orWhereBetween('followup_date_4', [$startDate, $endDate])
+                    ->orWhereBetween('followup_date_5', [$startDate, $endDate]);
+            });
+        }
+        return $filter_query->select('*')->get();
+    }
+
+    public function getInquiriesByUserAssignByFilter($request, $user_id)
+    {
+        $filter_query = Inquiry::where(function ($q) use ($user_id) {
+            $q->where('user_id', $user_id)
+              ->orWhere('assign_id', $user_id);
+        })
+        ->orderBy('created_at', 'desc');
+        if($request->has('status_id') && $request->status_id != ''){
+            $filter_query = $filter_query->where('status_id', $request->status_id);
+        }
+        if($request->has('assign_type') && $request->assign_type != ''){
+            if($request->assign_type == 'In') {
+                $filter_query = $filter_query->where('assign_id', $user_id);
+            } else if($request->assign_type == 'Out') {
+                $filter_query = $filter_query->where('user_id', $user_id);
+            }
         }
         if($request->followup_start_date && $request->followup_end_date){
             $startDate = date("Y-m-d", strtotime(str_replace('/', '-', $request->followup_start_date)));
@@ -120,17 +171,21 @@ class InquiryService
 
     public function getTotalInquiriesByUser($user_id)
     {
-        return Inquiry::where('user_id', $user_id)->count();
+        return Inquiry::where(function ($q) use ($user_id) {
+            $q->where('user_id', $user_id)
+              ->orWhere('assign_id', $user_id);
+        })->count();
     }
 
-    public function getTotalInquiriesByAssign($assign_id, $user_id)
+    public function getTotalInquiriesByAssign($user_id, $assign_type)
     {
-        return Inquiry::where(function ($query) use ($assign_id, $user_id) { 
-            $query->where('assign_id', '=', $assign_id) 
-                ->orWhere('user_id', '=', $user_id);
-            })->where(function ($query) { 
-                $query->whereColumn('assign_id','!=','user_id'); 
-            })->count();
+        $query = Inquiry::query();
+        if($assign_type == 'In') {
+            $query->where('assign_id', $user_id);
+        } else if($assign_type == 'Out') {
+            $query->where('user_id', $user_id);
+        }
+        return $query->count();
     }
 
     public function getTotalInquiriesByUserByStatus($user_id, $status_id)
