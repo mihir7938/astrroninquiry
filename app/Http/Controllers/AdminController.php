@@ -15,6 +15,7 @@ use App\Services\InquiryPhotosService;
 use App\Services\InquiryProductService;
 use App\Models\Inquiry;
 use App\Models\InquiryProduct;
+use App\Models\InquiryPhoto;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Illuminate\Support\Facades\Auth;
@@ -692,5 +693,18 @@ class AdminController extends Controller {
             $request->session()->put('alert-type', 'alert-warning');
             return redirect()->route('admin.inquiries');
         }
+    }
+    public function deleteImage(Request $request)
+    {
+        $photo = InquiryPhoto::find($request->id);
+        if (!$photo) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+        $path = public_path('assets/' . $photo->image);
+        if (file_exists($path)) {
+            $this->imageService->deleteFile($path);
+        }
+        $photo->delete();
+        return response()->json(['success' => true]);
     }
 }

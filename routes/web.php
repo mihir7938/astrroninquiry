@@ -73,6 +73,7 @@ Route::group(['prefix' => 'office', 'middleware' => 'admin'], function () {
     Route::get('/inquiries/edit/{id}', [AdminController::class, 'editInquiry'])->name('admin.inquiries.edit');
     Route::post('/inquiries/update', [AdminController::class, 'updateInquiry'])->name('admin.inquiries.update.save');
     Route::get('/inquiries/delete/{id}', [AdminController::class, 'deleteInquiry'])->name('admin.inquiries.delete');
+    Route::post('/inquiries/image/delete', [AdminController::class, 'deleteImage'])->name('admin.inquiries.image.delete');
 });
 
 Route::group(['prefix' => 'users', 'middleware' => 'user'], function () {
@@ -83,6 +84,7 @@ Route::group(['prefix' => 'users', 'middleware' => 'user'], function () {
     Route::post('/fetch-inquiries', [UserController::class, 'fetchInquiriesByStatus'])->name('users.inquiries.fetch');
     Route::get('/inquiries/edit/{id}', [UserController::class, 'editInquiry'])->name('users.inquiries.edit');
     Route::post('/inquiries/update', [UserController::class, 'updateInquiry'])->name('users.inquiries.update.save');
+    Route::post('/inquiries/image/delete', [UserController::class, 'deleteImage'])->name('users.inquiries.image.delete');
     Route::get('/assign-inquiries', [UserController::class, 'getAssignInquiries'])->name('users.assign.inquiries');
     Route::post('/fetch-assign-inquiries', [UserController::class, 'fetchAssignInquiriesByStatus'])->name('users.assign.inquiries.fetch');
     Route::get('/team', [UserController::class, 'getTeam'])->name('users.team');
