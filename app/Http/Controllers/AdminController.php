@@ -707,4 +707,31 @@ class AdminController extends Controller {
         $photo->delete();
         return response()->json(['success' => true]);
     }
+    public function deleteReqPDF(Request $request)
+    {
+        $inquiry = $this->inquiryService->getInquiryById($request->id);
+        $path = public_path('assets/' . $inquiry->requirements);
+        if (file_exists($path)) {
+            $this->imageService->deleteFile($path);
+        }
+        $data['requirements'] = NULL;
+        $this->inquiryService->update($inquiry, $data);
+        return response()->json(['success' => true]);
+    }
+    public function deleteQuoPDF(Request $request)
+    {
+        $inquiry = $this->inquiryService->getInquiryById($request->id);
+        $path = public_path('assets/' . $inquiry->quotation);
+        if (file_exists($path)) {
+            $this->imageService->deleteFile($path);
+        }
+        $data['quotation'] = NULL;
+        $this->inquiryService->update($inquiry, $data);
+        return response()->json(['success' => true]);
+    }
+    public function deletedInquiries()
+    {
+        $inquiries = Inquiry::onlyTrashed()->get();
+        return view('admin.inquiries.deleted')->with('inquiries', $inquiries);
+    }
 }

@@ -302,9 +302,14 @@
                                                         </div>              
                                                     </div>
                                                     @if($inquiry->requirements)
-                                                        <a href="{{asset('assets/'.$inquiry->requirements)}}" class="btn btn-primary btn-circle my-2 float-right" download>
-                                                            <i class="fas fa-download"></i>
-                                                        </a>
+                                                        <div id="req_pdf">
+                                                            <a href="{{asset('assets/'.$inquiry->requirements)}}" class="btn btn-primary btn-circle my-2" download>
+                                                                {{ str_replace('/inquiry/requirements/', '', $inquiry->requirements) }}
+                                                            </a>
+                                                            <button type="button" class="btn btn-danger btn-circle my-2 px-2 delete-requirements" data-id="{{$inquiry->id}}">
+                                                                <i class="far fa-window-close"></i>
+                                                            </button>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -318,9 +323,14 @@
                                                         </div>              
                                                     </div>
                                                     @if($inquiry->quotation)
-                                                        <a href="{{asset('assets/'.$inquiry->quotation)}}" class="btn btn-primary btn-circle my-2 float-right" download>
-                                                            <i class="fas fa-download"></i>
-                                                        </a>
+                                                        <div id="quo_pdf">
+                                                            <a href="{{asset('assets/'.$inquiry->quotation)}}" class="btn btn-primary btn-circle my-2" download>
+                                                                {{ str_replace('/inquiry/quotation/', '', $inquiry->quotation) }}
+                                                            </a>
+                                                            <button type="button" class="btn btn-danger btn-circle my-2 px-2 delete-quotation" data-id="{{$inquiry->id}}">
+                                                                <i class="far fa-window-close"></i>
+                                                            </button>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -383,6 +393,44 @@
                     },
                     success: function (response) {
                         $('#img_' + id).remove();
+                    },
+                    error: function () {
+                        alert('Something went wrong.');
+                    }
+                });
+            }
+        });
+        $(document).on('click', '.delete-requirements', function () {
+            let id = $(this).data('id');
+            if(confirm('Are you sure you want to delete this pdf?')) {
+                $.ajax({
+                    url: "{{ route('users.inquiries.requirements.delete') }}",
+                    type: "POST",
+                    data: {
+                        id: id,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function (response) {
+                        $('#req_pdf').remove();
+                    },
+                    error: function () {
+                        alert('Something went wrong.');
+                    }
+                });
+            }
+        });
+        $(document).on('click', '.delete-quotation', function () {
+            let id = $(this).data('id');
+            if(confirm('Are you sure you want to delete this pdf?')) {
+                $.ajax({
+                    url: "{{ route('users.inquiries.quotation.delete') }}",
+                    type: "POST",
+                    data: {
+                        id: id,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function (response) {
+                        $('#quo_pdf').remove();
                     },
                     error: function () {
                         alert('Something went wrong.');

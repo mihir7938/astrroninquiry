@@ -171,6 +171,12 @@
                                     </li>
                                 </ul>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{route('admin.deleted.inquiries')}}" class="nav-link {{(Route::currentRouteName() == 'admin.deleted.inquiries') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-trash"></i>
+                                    <p>Deleted Inquiries</p>
+                                </a>
+                            </li>
                         @endif
                     </ul>
                 </nav>
