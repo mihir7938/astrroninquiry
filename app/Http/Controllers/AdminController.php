@@ -13,6 +13,7 @@ use App\Services\UserService;
 use App\Services\InquiryService;
 use App\Services\InquiryPhotosService;
 use App\Services\InquiryProductService;
+use App\Services\WhatsappService;
 use App\Models\Inquiry;
 use App\Models\InquiryProduct;
 use App\Models\InquiryPhoto;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller {
 
-	private $imageService, $cityService, $businessService, $productService, $statusService, $assignService, $userService, $inquiryService, $inquiryPhotosService, $inquiryProductService;
+	private $imageService, $cityService, $businessService, $productService, $statusService, $assignService, $userService, $inquiryService, $inquiryPhotosService, $inquiryProductService, $whatsappService;
 
     public function __construct(
         UploadImageService $imageService,
@@ -34,7 +35,8 @@ class AdminController extends Controller {
         UserService $userService,
         InquiryService $inquiryService,
         InquiryPhotosService $inquiryPhotosService,
-        InquiryProductService $inquiryProductService
+        InquiryProductService $inquiryProductService,
+        WhatsappService $whatsappService
     )
     {
         $this->imageService = $imageService;
@@ -47,6 +49,7 @@ class AdminController extends Controller {
         $this->inquiryService = $inquiryService;
         $this->inquiryPhotosService = $inquiryPhotosService;
         $this->inquiryProductService = $inquiryProductService;
+        $this->whatsappService = $whatsappService;
     }
 
     public function index(Request $request)
