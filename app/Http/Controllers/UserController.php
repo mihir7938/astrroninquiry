@@ -16,6 +16,8 @@ use App\Services\InquiryPhotosService;
 use App\Services\InquiryProductService;
 use App\Models\InquiryProduct;
 use App\Models\InquiryPhoto;
+use App\Models\WhatsappMessage;
+use App\Jobs\SendWhatsappMessageJob;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Illuminate\Support\Facades\Auth;
 
@@ -113,6 +115,45 @@ class UserController extends Controller
                 $this->inquiryPhotosService->create($data);
             }
         }
+        $productNames = $inquiry_data->products()->with('product')->get()->pluck('product.name')->filter()->implode(', ');
+        $message = WhatsappMessage::create([
+            'wa_id'         => env('ADMIN_MOBILE'),
+            'from_number'   => env('WHATSAPP_PHONE_NUMBER'),
+            'to_number'     => env('ADMIN_MOBILE'),
+            'direction'     => 'outgoing',
+            'type'          => 'template',
+            'template_name' => env('NEW_INQUIRY_TEMPLATE'),
+            'parameters'    => [
+                'staff_name' => Auth::user()->name,
+                'inquiry_no'    => $inquiry_id,
+                'customer_name'=> $request->contact_person,
+                'customer_mobile' => $request->phone,
+                'company_name'  => $request->company_name,
+                'product'  => $productNames,
+                'city'  => $request->city,
+            ],
+            'status'        => 'pending'
+        ]);
+        SendWhatsappMessageJob::dispatch($message->id);
+        $assignedUser = $this->userService->getUserById($request->assign);
+        $message2 = WhatsappMessage::create([
+            'wa_id'         => '91' . $assignedUser->phone,
+            'from_number'   => env('WHATSAPP_PHONE_NUMBER'),
+            'to_number'     => '91' . $assignedUser->phone,
+            'direction'     => 'outgoing',
+            'type'          => 'template',
+            'template_name' => env('ASSIGN_INQUIRY_TEMPLATE'),
+            'parameters'    => [
+                'staff_name' => $assignedUser->name,
+                'customer_name'=> $request->contact_person,
+                'company_name'  => $request->company_name,
+                'customer_mobile' => $request->phone,
+                'product'  => $productNames,
+                'city'  => $request->city,
+            ],
+            'status'        => 'pending'
+        ]);
+        SendWhatsappMessageJob::dispatch($message2->id);
         $request->session()->put('message', 'inquiry has been generated successfully.');
         $request->session()->put('alert-type', 'alert-success');
         return redirect()->route('users.inquiries');
@@ -163,6 +204,7 @@ class UserController extends Controller
             if(!$inquiry){
                 throw new BadRequestException('Invalid Request id');
             }
+            $oldAssignId = $inquiry->assign_id;
             if($request->assign) {
                 $data['assign_id'] = $request->assign;
             }
@@ -244,6 +286,30 @@ class UserController extends Controller
                     $filename = $this->imageService->uploadFile($img, "assets/inquiry");
                     $data['image'] = '/inquiry/'.$filename;
                     $this->inquiryPhotosService->create($data);
+                }
+            }
+            if ($oldAssignId != $request->assign) {
+                $assignedUser = $this->userService->getUserById($request->assign);
+                if ($assignedUser && $assignedUser->phone) {
+                    $productNames = $inquiry->products()->with('product')->get()->pluck('product.name')->filter()->implode(', ');
+                    $message = WhatsappMessage::create([
+                        'wa_id'         => '91' . $assignedUser->phone,
+                        'from_number'   => env('WHATSAPP_PHONE_NUMBER'),
+                        'to_number'     => '91' . $assignedUser->phone,
+                        'direction'     => 'outgoing',
+                        'type'          => 'template',
+                        'template_name' => env('ASSIGN_INQUIRY_TEMPLATE'),
+                        'parameters'    => [
+                            'staff_name' => $assignedUser->name,
+                            'customer_name'=> $request->contact_person,
+                            'company_name'  => $request->company_name,
+                            'customer_mobile' => $request->phone,
+                            'product'  => $productNames,
+                            'city'  => $request->city,
+                        ],
+                        'status'        => 'pending'
+                    ]);
+                    SendWhatsappMessageJob::dispatch($message->id);
                 }
             }
             $request->session()->put('message', 'inquiry has been updated successfully.');

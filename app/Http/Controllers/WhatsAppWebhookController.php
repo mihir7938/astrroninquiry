@@ -34,24 +34,30 @@ class WhatsAppWebhookController extends Controller
         if (isset($entry['messages'])) {
             $message = $entry['messages'][0];
             $contact = $entry['contacts'][0] ?? [];
-            WhatsappMessage::create([
-                'message_id'=>$message['id'],
-                'wa_id'       => $contact['wa_id'] ?? $message['from'],
-                'from_number' => $message['from'],
-                'to_number'   => $entry['metadata']['display_phone_number'],
-                'direction'=>'incoming',
-                'type'=>$message['type'],
-                'message'=>$message['text']['body'] ?? '',
-                'status'=>'received',
-                'payload'=>$message
-            ]);
+            WhatsappMessage::updateOrCreate(
+                [
+                    'message_id' => $message['id']
+                ],
+                [
+                    'message_id'=>$message['id'],
+                    'wa_id'       => $contact['wa_id'] ?? $message['from'],
+                    'from_number' => $message['from'],
+                    'to_number'   => $entry['metadata']['display_phone_number'],
+                    'direction'=>'incoming',
+                    'type'=>$message['type'],
+                    'message'=>$message['text']['body'] ?? '',
+                    'status'=>'received',
+                    'payload'=>$message
+                ]
+            );
         }
         if (isset($entry['statuses'])) {
             $status = $entry['statuses'][0];
             WhatsappMessage::where('message_id',$status['id'])
             ->update([
                 'status'=>$status['status'],
-                'payload'=>$status
+                'payload'=>$status,
+                'error_message' => $status['errors'][0]['title'] ?? null
             ]);
         }
         return response('EVENT_RECEIVED', 200);

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\WhatsappMessage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -32,21 +31,11 @@ class WhatsappService
                 ->post($this->baseUrl, $payload);
 
             $result = $response->json();
-            if ($response->successful()) {
-                WhatsappMessage::create([
-                    'message_id' => $result['messages'][0]['id'] ?? null,
-                    'wa_id'        => $payload['to'],
-                    'from_number'  => config('services.whatsapp.whatsapp_number'),
-                    'to_number'    => $payload['to'],
-                    'direction' => 'outgoing',
-                    'type' => $payload['type'],
-                    'message' => $payload['type']=='text'
-                        ? ($payload['text']['body'] ?? '')
-                        : ($payload['template']['name'] ?? ''),
-                    'status' => 'sent',
-                    'payload' => $result
-                ]);
-            }
+            Log::info('WhatsApp API Response', [
+                'payload' => $payload,
+                'status'  => $response->status(),
+                'response'=> $result
+            ]);
 
             return [
                 'success' => $response->successful(),
@@ -119,32 +108,5 @@ class WhatsappService
         }
 
         return $this->send($payload);
-    }
-    public function sendInquiryReply($mobile, $customerName, $inquiryNo, $contactMobile, $contactEmail, $companyName)
-    {
-        return $this->sendTemplate(
-            $mobile,
-            'inquiry_reply',
-            [
-                'customer_name' => $customerName,
-                'inquiry_no' => $inquiryNo,
-                'contact_number' => $contactMobile,
-                'contact_email' => $contactEmail,
-                'company_name' => $companyName,
-            ]
-        );
-    }   
-    public function sendInquiryAssigned($mobile, $assignedPerson, $inquiryNo, $customerName, $customerMobile)
-    {
-        return $this->sendTemplate(
-            $mobile,
-            'complaint_assigned',
-            [
-                'name' => $assignedPerson,
-                'complain_no' => $inquiryNo,
-                'customer_name' => $customerName,
-                'customer_mobile' => $customerMobile,
-            ]
-        );
     }
 }

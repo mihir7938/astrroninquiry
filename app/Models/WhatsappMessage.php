@@ -14,14 +14,18 @@ class WhatsappMessage extends Model
         'direction',
         'type',
         'message',
+        'template_name',
+        'parameters',
         'media_id',
         'mime_type',
         'file_name',
         'status',
+        'error_message',
         'payload'
     ];
 
     protected $casts = [
-        'payload' => 'array'
+        'payload' => 'array',
+        'parameters' => 'array',
     ];
 }
