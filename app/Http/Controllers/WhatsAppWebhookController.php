@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\WhatsappMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class WhatsAppWebhookController extends Controller
@@ -32,33 +33,58 @@ class WhatsAppWebhookController extends Controller
         Log::info('Full payload', $request->all());
         $entry = $request->input('entry.0.changes.0.value');
         if (isset($entry['messages'])) {
-            $message = $entry['messages'][0];
-            $contact = $entry['contacts'][0] ?? [];
-            WhatsappMessage::updateOrCreate(
-                [
-                    'message_id' => $message['id']
-                ],
-                [
-                    'message_id'=>$message['id'],
-                    'wa_id'       => $contact['wa_id'] ?? $message['from'],
-                    'from_number' => $message['from'],
-                    'to_number'   => $entry['metadata']['display_phone_number'],
-                    'direction'=>'incoming',
-                    'type'=>$message['type'],
-                    'message'=>$message['text']['body'] ?? '',
-                    'status'=>'received',
-                    'payload'=>$message
-                ]
-            );
+            foreach ($entry['messages'] as $message) {
+                $contact = $entry['contacts'][0] ?? [];
+                WhatsappMessage::updateOrCreate(
+                    [
+                        'message_id' => $message['id']
+                    ],
+                    [
+                        'message_id' => $message['id'],
+                        'wa_id' => $contact['wa_id'] ?? $message['from'],
+                        'from_number' => $message['from'],
+                        'to_number' => $entry['metadata']['display_phone_number'] ?? null,
+                        'direction' => 'incoming',
+                        'type' => $message['type'],
+                        'message' => $message['text']['body'] ?? '',
+                        'status' => 'received',
+                        'payload' => $message
+                    ]
+                );
+            }
         }
         if (isset($entry['statuses'])) {
-            $status = $entry['statuses'][0];
-            WhatsappMessage::where('message_id',$status['id'])
-            ->update([
-                'status'=>$status['status'],
-                'payload'=>$status,
-                'error_message' => $status['errors'][0]['title'] ?? null
-            ]);
+            foreach ($entry['statuses'] as $status) {
+                WhatsappMessage::where('message_id',$status['id'])
+                ->update([
+                    'status' => $status['status'],
+                    'payload' => $status,
+                    'error_message' => $status['errors'][0]['title'] ?? null
+                ]);
+                try {
+                    Http::timeout(5)
+                        ->withHeaders([
+                            'X-WhatsApp-Status-Secret' => env('WHATSAPP_STATUS_SECRET')
+                        ])
+                        ->post(
+                            env('SUPPORT_WHATSAPP_STATUS_URL'),
+                            [
+                                'message_id' => $status['id'],
+                                'status' => $status['status'],
+                                'errors' => $status['errors'] ?? [],
+                                'payload' => $status
+                            ]
+                        );
+                } catch (\Throwable $e) {
+                    Log::error(
+                        'Failed to forward WhatsApp status to Support',
+                        [
+                            'message_id' => $status['id'],
+                            'error' => $e->getMessage()
+                        ]
+                    );
+                }
+            }
         }
         return response('EVENT_RECEIVED', 200);
     }
