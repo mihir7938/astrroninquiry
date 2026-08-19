@@ -296,7 +296,7 @@
                                                     </div>
                                                     @if($inquiry->requirements)
                                                         <div id="req_pdf">
-                                                            <a href="{{asset('assets/'.$inquiry->requirements)}}" class="btn btn-primary btn-circle my-2" download>
+                                                            <a href="{{asset('assets/'.$inquiry->requirements)}}" class="btn btn-primary btn-circle my-2" target="_blank">
                                                                 {{ str_replace('/inquiry/requirements/', '', $inquiry->requirements) }}
                                                             </a>
                                                             <button type="button" class="btn btn-danger btn-circle my-2 px-2 delete-requirements" data-id="{{$inquiry->id}}">
@@ -317,7 +317,7 @@
                                                     </div>
                                                     @if($inquiry->quotation)
                                                         <div id="quo_pdf">
-                                                            <a href="{{asset('assets/'.$inquiry->quotation)}}" class="btn btn-primary btn-circle my-2" download>
+                                                            <a href="{{asset('assets/'.$inquiry->quotation)}}" class="btn btn-primary btn-circle my-2" target="_blank">
                                                                 {{ str_replace('/inquiry/quotation/', '', $inquiry->quotation) }}
                                                             </a>
                                                             <button type="button" class="btn btn-danger btn-circle my-2 px-2 delete-quotation" data-id="{{$inquiry->id}}">
