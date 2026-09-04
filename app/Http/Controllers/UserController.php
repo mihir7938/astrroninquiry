@@ -83,13 +83,21 @@ class UserController extends Controller
         $data['reff'] = $request->reff;
         $data['remarks'] = $request->remarks;
         $data['inquiry_date'] = date('Y-m-d');
-        if($request->has('requirements')){
-            $filename_req = $this->imageService->uploadFile($request->requirements, "assets/inquiry/requirements");
-            $data['requirements'] = '/inquiry/requirements/'.$filename_req;
+        if ($request->hasFile('requirements')) {
+            $requirements = [];
+            foreach ($request->file('requirements') as $file) {
+                $filename_req = $this->imageService->uploadFile($file, "assets/inquiry/requirements");
+                $requirements[] = '/inquiry/requirements/' . $filename_req;
+            }
+            $data['requirements'] = implode(',', $requirements);
         }
-        if($request->has('quotation')){
-            $filename_quo = $this->imageService->uploadFile($request->quotation, "assets/inquiry/quotation");
-            $data['quotation'] = '/inquiry/quotation/'.$filename_quo;
+        if ($request->hasFile('quotations')) {
+            $quotations = [];
+            foreach ($request->file('quotations') as $file) {
+                $filename_quo = $this->imageService->uploadFile($file, "assets/inquiry/quotation");
+                $quotations[] = '/inquiry/quotation/' . $filename_quo;
+            }
+            $data['quotation'] = implode(',', $quotations);
         }
         $inquiry_data = $this->inquiryService->create($data);
         $inquiry_id = $inquiry_data->id;
@@ -241,17 +249,35 @@ class UserController extends Controller
             if($request->followup_date_5) {
                 $data['followup_date_5'] = date("Y-m-d", strtotime(str_replace('/', '-', $request->followup_date_5)));
             }
-            if($request->has('requirements')){
-                $filepath = public_path('assets/' . $inquiry->requirements);
-                $this->imageService->deleteFile($filepath);
-                $filename_req = $this->imageService->uploadFile($request->requirements, "assets/inquiry/requirements");
-                $data['requirements'] = '/inquiry/requirements/'.$filename_req;
+            if ($request->hasFile('requirements')) {
+                $newRequirements = [];
+                foreach ($request->file('requirements') as $file) {
+                    $filename_req = $this->imageService->uploadFile($file, "assets/inquiry/requirements");
+                    $newRequirements[] = '/inquiry/requirements/' . $filename_req;
+                }
+                $oldRequirements = [];
+                if ($inquiry->requirements) {
+                    $oldRequirements = array_filter(
+                        array_map('trim', explode(',', $inquiry->requirements))
+                    );
+                }
+                $allRequirements = array_merge($oldRequirements, $newRequirements);
+                $data['requirements'] = implode(',', $allRequirements);
             }
-            if($request->has('quotation')){
-                $filepath2 = public_path('assets/' . $inquiry->quotation);
-                $this->imageService->deleteFile($filepath2);
-                $filename_quo = $this->imageService->uploadFile($request->quotation, "assets/inquiry/quotation");
-                $data['quotation'] = '/inquiry/quotation/'.$filename_quo;
+            if ($request->hasFile('quotations')) {
+                $newQuotations = [];
+                foreach ($request->file('quotations') as $file) {
+                    $filename_quo = $this->imageService->uploadFile($file, "assets/inquiry/quotation");
+                    $newQuotations[] = '/inquiry/quotation/' . $filename_quo;
+                }
+                $oldQuotations = [];
+                if ($inquiry->quotation) {
+                    $oldQuotations = array_filter(
+                        array_map('trim', explode(',', $inquiry->quotation))
+                    );
+                }
+                $allQuotations = array_merge($oldQuotations, $newQuotations);
+                $data['quotation'] = implode(',', $allQuotations);
             }
             $this->inquiryService->update($inquiry, $data);
             $productExistingIds = [];
@@ -337,22 +363,42 @@ class UserController extends Controller
     public function deleteReqPDF(Request $request)
     {
         $inquiry = $this->inquiryService->getInquiryById($request->id);
-        $path = public_path('assets/' . $inquiry->requirements);
-        if (file_exists($path)) {
-            $this->imageService->deleteFile($path);
+        $deleteFile = $request->file;
+        $requirements = $inquiry->requirements ? explode(',', $inquiry->requirements) : [];
+        $remainingRequirements = [];
+        foreach ($requirements as $requirement) {
+            $requirement = trim($requirement);
+            if ($requirement === $deleteFile) {
+                $filepath = public_path('assets' . $requirement);
+                if (file_exists($filepath)) {
+                    $this->imageService->deleteFile($filepath);
+                }
+            } else {
+                $remainingRequirements[] = $requirement;
+            }
         }
-        $data['requirements'] = NULL;
+        $data['requirements'] = !empty($remainingRequirements) ? implode(',', $remainingRequirements) : NULL;
         $this->inquiryService->update($inquiry, $data);
         return response()->json(['success' => true]);
     }
     public function deleteQuoPDF(Request $request)
     {
         $inquiry = $this->inquiryService->getInquiryById($request->id);
-        $path = public_path('assets/' . $inquiry->quotation);
-        if (file_exists($path)) {
-            $this->imageService->deleteFile($path);
+        $deleteFile = $request->file;
+        $quotations = $inquiry->quotation ? explode(',', $inquiry->quotation) : [];
+        $remainingQuotations = [];
+        foreach ($quotations as $quotation) {
+            $quotation = trim($quotation);
+            if ($quotation === $deleteFile) {
+                $filepath = public_path('assets' . $quotation);
+                if (file_exists($filepath)) {
+                    $this->imageService->deleteFile($filepath);
+                }
+            } else {
+                $remainingQuotations[] = $quotation;
+            }
         }
-        $data['quotation'] = NULL;
+        $data['quotation'] = !empty($remainingQuotations) ? implode(',', $remainingQuotations) : NULL;
         $this->inquiryService->update($inquiry, $data);
         return response()->json(['success' => true]);
     }

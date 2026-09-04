@@ -297,18 +297,31 @@
                                                     <label for="requirements">Requirements (allowed only PDF file)</label>
                                                     <div class="input-group requirements_div">
                                                         <div class="custom-file">             
-                                                            <input type="file" class="custom-file-input" id="requirements" name="requirements">
+                                                            <input type="file" class="custom-file-input" id="requirements" name="requirements[]" multiple>
                                                             <label class="custom-file-label" for="requirements">Choose file</label>
                                                         </div>              
                                                     </div>
                                                     @if($inquiry->requirements)
                                                         <div id="req_pdf">
-                                                            <a href="{{asset('assets/'.$inquiry->requirements)}}" class="btn btn-primary btn-circle my-2" target="_blank">
-                                                                {{ str_replace('/inquiry/requirements/', '', $inquiry->requirements) }}
-                                                            </a>
-                                                            <button type="button" class="btn btn-danger btn-circle my-2 px-2 delete-requirements" data-id="{{$inquiry->id}}">
-                                                                <i class="far fa-window-close"></i>
-                                                            </button>
+                                                            @foreach(explode(',', $inquiry->requirements) as $requirement)
+                                                                @php
+                                                                    $requirement = trim($requirement);
+                                                                    $filename = basename($requirement);
+                                                                @endphp
+                                                                @if($requirement)
+                                                                    <div class="my-2 d-flex align-items-center">
+                                                                        <a href="{{ asset('assets' . $requirement) }}" class="btn btn-primary mr-1" target="_blank">
+                                                                            {{ $filename }}
+                                                                        </a>
+                                                                        <button type="button"
+                                                                                class="btn btn-danger btn-circle delete-requirements"
+                                                                                data-id="{{ $inquiry->id }}"
+                                                                                data-file="{{ $requirement }}">
+                                                                            <i class="far fa-window-close"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
                                                         </div>
                                                     @endif
                                                 </div>
@@ -318,18 +331,31 @@
                                                     <label for="quotation">Quotation (allowed only PDF file)</label>
                                                     <div class="input-group quotation_div">
                                                         <div class="custom-file">             
-                                                            <input type="file" class="custom-file-input" id="quotation" name="quotation">
+                                                            <input type="file" class="custom-file-input" id="quotation" name="quotations[]" multiple>
                                                             <label class="custom-file-label" for="quotation">Choose file</label>
                                                         </div>              
                                                     </div>
                                                     @if($inquiry->quotation)
                                                         <div id="quo_pdf">
-                                                            <a href="{{asset('assets/'.$inquiry->quotation)}}" class="btn btn-primary btn-circle my-2" target="_blank">
-                                                                {{ str_replace('/inquiry/quotation/', '', $inquiry->quotation) }}
-                                                            </a>
-                                                            <button type="button" class="btn btn-danger btn-circle my-2 px-2 delete-quotation" data-id="{{$inquiry->id}}">
-                                                                <i class="far fa-window-close"></i>
-                                                            </button>
+                                                            @foreach(explode(',', $inquiry->quotation) as $quotation)
+                                                                @php
+                                                                    $quotation = trim($quotation);
+                                                                    $filename_quotation = basename($quotation);
+                                                                @endphp
+                                                                @if($quotation)
+                                                                    <div class="my-2 d-flex align-items-center">
+                                                                        <a href="{{ asset('assets' . $quotation) }}" class="btn btn-primary mr-1" target="_blank">
+                                                                            {{ $filename_quotation }}
+                                                                        </a>
+                                                                        <button type="button"
+                                                                                class="btn btn-danger btn-circle delete-quotation"
+                                                                                data-id="{{ $inquiry->id }}"
+                                                                                data-file="{{ $quotation }}">
+                                                                            <i class="far fa-window-close"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
                                                         </div>
                                                     @endif
                                                 </div>
@@ -401,17 +427,22 @@
             }
         });
         $(document).on('click', '.delete-requirements', function () {
-            let id = $(this).data('id');
+            var button = $(this);
+            var id = button.data('id');
+            var file = button.data('file');
             if(confirm('Are you sure you want to delete this pdf?')) {
                 $.ajax({
                     url: "{{ route('users.inquiries.requirements.delete') }}",
                     type: "POST",
                     data: {
                         id: id,
+                        file: file,
                         _token: "{{ csrf_token() }}"
                     },
                     success: function (response) {
-                        $('#req_pdf').remove();
+                        if (response.success) {
+                            button.closest('.my-2').remove();
+                        }
                     },
                     error: function () {
                         alert('Something went wrong.');
@@ -420,17 +451,22 @@
             }
         });
         $(document).on('click', '.delete-quotation', function () {
-            let id = $(this).data('id');
+            var button = $(this);
+            var id = button.data('id');
+            var file = button.data('file');
             if(confirm('Are you sure you want to delete this pdf?')) {
                 $.ajax({
                     url: "{{ route('users.inquiries.quotation.delete') }}",
                     type: "POST",
                     data: {
                         id: id,
+                        file: file,
                         _token: "{{ csrf_token() }}"
                     },
                     success: function (response) {
-                        $('#quo_pdf').remove();
+                        if (response.success) {
+                            button.closest('.my-2').remove();
+                        }
                     },
                     error: function () {
                         alert('Something went wrong.');
@@ -468,11 +504,11 @@
                     extension: "png|jpg|jpeg",
                     maxsize: 5000000,
                 },
-                requirements: {
+                'requirements[]': {
                     extension: "pdf",
                     maxsize: 1000000,
                 },
-                quotation: {
+                'quotations[]': {
                     extension: "pdf",
                     maxsize: 1000000,
                 }
@@ -503,11 +539,11 @@
                     extension: "Please select valid image.",
                     maxsize: "File size must be less than 5MB."
                 },
-                requirements: {
+                'requirements[]': {
                     extension: "Please select valid pdf.",
                     maxsize: "File size must be less than 1MB."
                 },
-                quotation: {
+                'quotations[]': {
                     extension: "Please select valid pdf.",
                     maxsize: "File size must be less than 1MB."
                 }
@@ -517,9 +553,9 @@
                     error.insertAfter(element.next('.select2-container'));
                 } else if (element.attr("name") == "image[]" ) {
                     $(".image_div").after(error);
-                } else if (element.attr("name") == "requirements" ) {
+                } else if (element.attr("name") == "requirements[]" ) {
                     $(".requirements_div").after(error);
-                } else if (element.attr("name") == "quotation" ) {
+                } else if (element.attr("name") == "quotations[]" ) {
                     $(".quotation_div").after(error);
                 } else {
                     error.insertAfter(element);

@@ -145,7 +145,7 @@
                                                     <label for="requirements">Requirements (allowed only PDF file)</label>
                                                     <div class="input-group requirements_div">
                                                         <div class="custom-file">             
-                                                            <input type="file" class="custom-file-input" id="requirements" name="requirements">
+                                                            <input type="file" class="custom-file-input" id="requirements" name="requirements[]" multiple>
                                                             <label class="custom-file-label" for="requirements">Choose file</label>
                                                         </div>              
                                                     </div>
@@ -156,7 +156,7 @@
                                                     <label for="quotation">Quotation (allowed only PDF file)</label>
                                                     <div class="input-group quotation_div">
                                                         <div class="custom-file">             
-                                                            <input type="file" class="custom-file-input" id="quotation" name="quotation">
+                                                            <input type="file" class="custom-file-input" id="quotation" name="quotations[]" multiple>
                                                             <label class="custom-file-label" for="quotation">Choose file</label>
                                                         </div>              
                                                     </div>
@@ -236,11 +236,11 @@
                     extension: "png|jpg|jpeg",
                     maxsize: 5000000,
                 },
-                requirements: {
+                'requirements[]': {
                     extension: "pdf",
                     maxsize: 1000000,
                 },
-                quotation: {
+                'quotations[]': {
                     extension: "pdf",
                     maxsize: 1000000,
                 }
@@ -274,11 +274,11 @@
                     extension: "Please select valid image.",
                     maxsize: "File size must be less than 5MB."
                 },
-                requirements: {
+                'requirements[]': {
                     extension: "Please select valid pdf.",
                     maxsize: "File size must be less than 1MB."
                 },
-                quotation: {
+                'quotations[]': {
                     extension: "Please select valid pdf.",
                     maxsize: "File size must be less than 1MB."
                 }
@@ -288,9 +288,9 @@
                     error.insertAfter(element.next('.select2-container'));
                 } else if (element.attr("name") == "image[]" ) {
                     $(".image_div").after(error);
-                } else if (element.attr("name") == "requirements" ) {
+                } else if (element.attr("name") == "requirements[]" ) {
                     $(".requirements_div").after(error);
-                } else if (element.attr("name") == "quotation" ) {
+                } else if (element.attr("name") == "quotations[]" ) {
                     $(".quotation_div").after(error);
                 } else {
                     error.insertAfter(element);
