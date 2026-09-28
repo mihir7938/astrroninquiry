@@ -43,6 +43,7 @@ class Inquiry extends Model
         'followup_date_5',
 		'requirements',
 		'quotation',
+        'dispatched_date',
     ];
 
     public function user()

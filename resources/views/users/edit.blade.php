@@ -177,6 +177,15 @@
 					                        </select>
                                         </div>
                                         <div class="form-group">
+                                            <label for="dispatched_date">Dispatched Date</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                                </div>
+                                                <input type="text" id="dispatched_date" name="dispatched_date" class="form-control dispatched_date" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" value="{{$inquiry->dispatched_date ? Carbon\Carbon::parse($inquiry->dispatched_date)->format('d/m/Y') : ''}}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="remarks">Remarks</label>
                                             <textarea class="form-control" id="remarks" name="remarks" rows="4" cols="50" placeholder="Remarks">{{$inquiry->remarks}}</textarea>
                                         </div>
@@ -401,6 +410,7 @@
     $(function () {
         $('.select2').select2();
         $('.followup_date').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' });
+        $('.dispatched_date').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' });
         $(document).on('click', '[data-toggle="lightbox"]', function(event) {
             event.preventDefault();
             $(this).ekkoLightbox({

@@ -648,6 +648,10 @@ class AdminController extends Controller {
             $data['business_id'] = $request->business;
             $data['status_id'] = $request->status;
             $data['reff'] = $request->reff;
+            $data['dispatched_date'] = NULL;
+            if($request->dispatched_date) {
+                $data['dispatched_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $request->dispatched_date)));
+            }
             $data['remarks'] = $request->remarks;
             $data['followup_remarks_1'] = $request->followup_remarks_1;
             $data['followup_date_1'] = NULL;
