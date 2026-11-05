@@ -10,6 +10,7 @@
                         <th></th>
                         <th>Action</th>
                         <th>Inquiry No</th>
+                        <th>Priority</th>
                         <th>Date</th>
                         <th>Company</th>
                         <th>Contact Name</th>
@@ -40,6 +41,7 @@
                         <th></th>
                         <th>Action</th>
                         <th>Inquiry No</th>
+                        <th>Priority</th>
                         <th>Date</th>
                         <th>Company</th>
                         <th>Contact Name</th>
@@ -75,6 +77,15 @@
                                 </a>
                             </td>
                             <td>{{$inquiry->id}}</td>
+                            <td class="text-center status" style="min-width: 40px;">
+                                @if($inquiry->priority == 'High')
+                                    <div class="bg-danger d-inline-flex">{{$inquiry->priority}}</div>
+                                @elseif($inquiry->priority == 'Medium')
+                                    <div class="bg-warning d-inline-flex">{{$inquiry->priority}}</div>
+                                @elseif($inquiry->priority == 'Low')
+                                    <div class="bg-dark d-inline-flex">{{$inquiry->priority}}</div>
+                                @endif
+                            </td>
                             <td>{{Carbon\Carbon::parse($inquiry->inquiry_date)->format('d-m-Y')}}</td>
                             <td>{{$inquiry->company_name}}</td>
                             <td>{{$inquiry->contact_person}}</td>

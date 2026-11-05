@@ -216,6 +216,7 @@ class UserController extends Controller
             if($request->assign) {
                 $data['assign_id'] = $request->assign;
             }
+            $data['priority'] = $request->priority;
             $data['contact_person'] = $request->contact_person;
             $data['phone'] = $request->phone;
             $data['email'] = $request->email;

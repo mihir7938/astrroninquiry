@@ -28,6 +28,7 @@ class Inquiry extends Model
         'business_id',
         'status_id',
         'reff',
+        'priority',
         'remarks',
         'image',
         'inquiry_date',

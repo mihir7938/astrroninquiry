@@ -170,6 +170,15 @@
 					                        </select>
                                         </div>
                                         <div class="form-group">
+                                            <label for="priority">Priority</label>
+                                            <select id="priority" name="priority" class="form-control">
+                                                <option value="">Select Priority</option>
+                                                <option value="High" @if($inquiry->priority == 'High') selected @endif>High</option>
+                                                <option value="Medium" @if($inquiry->priority == 'Medium') selected @endif>Medium</option>
+                                                <option value="Low" @if($inquiry->priority == 'Low') selected @endif>Low</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="dispatched_date">Dispatched Date</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">

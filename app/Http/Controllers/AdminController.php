@@ -640,6 +640,7 @@ class AdminController extends Controller {
             }
             $oldAssignId = $inquiry->assign_id;
             $data['assign_id'] = $request->assign;
+            $data['priority'] = $request->priority;
             $data['company_name'] = $request->company_name;
             $data['contact_person'] = $request->contact_person;
             $data['phone'] = $request->phone;
